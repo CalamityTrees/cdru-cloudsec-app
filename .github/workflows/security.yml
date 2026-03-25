@@ -1,0 +1,39 @@
+name: Security Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+
+    permissions:
+      security-events: write
+
+    steps:
+    - uses: actions/checkout@v3
+
+    # SAST - CodeQL
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: javascript
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
+
+    - name: Run CodeQL
+      uses: github/codeql-action/analyze@v3
+
+    # Secret scanning (simple grep to guarantee detection)
+    - name: Secret Scan
+      run: |
+        grep -r "PASSWORD" . && echo "Hardcoded secret found"
+        grep -r "API_KEY" . && echo "API key exposed"
+
+    # DAST
+    - name: OWASP ZAP Scan
+      uses: zaproxy/action-baseline@v0.10.0
+      with:
+        target: ${{ secrets.APP_URL }}
