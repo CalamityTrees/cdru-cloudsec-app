@@ -3,9 +3,6 @@
 
 name: Build and deploy Node.js app to Azure Web App - CloudSecLab43
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true
-
 on:
   push:
     branches:
@@ -20,7 +17,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          node-version: '22.x'
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
